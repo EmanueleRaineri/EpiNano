@@ -91,8 +91,8 @@ def java_bam_to_tsv (bam_file,  reference_file, sam2tsv, type):
 	'''
 	type: reference types,i.e., trans or genome 
 	'''
-	awk_forward_strand = """ awk '{if (/^#/) print $0"\tSTARAND"; else print $0"\t+"}' """
-	awk_reverse_strand = """ awk '{if (/^#/) print $0"\tSTARAND"; else print $0"\t-"}' """
+	awk_forward_strand = """ awk '{if (/^#/) print $0"\tSTRAND"; else print $0"\t+"}' """
+	awk_reverse_strand = """ awk '{if (/^#/) print $0"\tSTRAND"; else print $0"\t-"}' """
 	cmds = []
 
 	if type.lower().startswith ("t"):	
@@ -137,10 +137,10 @@ def tsv_to_freq_multiprocessing_with_manager (tsv_reads_chunk_q, out_dir):
 					continue
 				ary = line.rstrip().split()
 				if ary[-2] in ['M','m']:
-					k = (ary[2], int (ary[-4]), ary[-1]) #
+					k = (ary[3], int (ary[-4]), ary[-1]) #
 					cov[k] = cov.get(k,0) + 1
 					aln_mem = []
-					aln_mem.append((ary[0],ary[2],int(ary[-4]), ary[-1]))
+					aln_mem.append((ary[0],ary[3],int(ary[-4]), ary[-1]))
 					qual[k].append (ord(ary[-5])-33)
 					base[k] = ary[-3].upper()
 					read_bases[k][ary[4]] = read_bases[k].get(ary[4], 0) + 1
@@ -149,19 +149,19 @@ def tsv_to_freq_multiprocessing_with_manager (tsv_reads_chunk_q, out_dir):
 					else:
 						mat[k] += 1
 				if ary[-2] == 'D':
-					k = (ary[2], int(ary[-4]), ary[-1])
+					k = (ary[3], int(ary[-4]), ary[-1])
 					cov[k] = cov.get(k,0) + 1
 					aln_mem = []
-					aln_mem.append((ary[0],ary[2],int(ary[-4]), ary[-1]))
+					aln_mem.append((ary[0],ary[3],int(ary[-4]), ary[-1]))
 					base[k] = ary[-3].upper()
 					dele[k] = dele.get(k,0) + 1
 				if ary[-2] == 'I':
 					last_k = aln_mem[-1][1],aln_mem[-1][2],aln_mem[-1][3] # last alignment with match/mismatch/del
-					next_k = (ary[2], last_k[1] + 1,last_k[2])
-					if last_k[0] != ary[2]:
+					next_k = (ary[3], last_k[1] + 1,last_k[2])
+					if last_k[0] != ary[3]:
 						pass
-					ins_k_up = (ary[0], ary[2], last_k[1],last_k[2])
-					ins_k_down = (ary[0], ary[2], last_k[1] + 1,last_k[2])
+					ins_k_up = (ary[0], ary[3], last_k[1],last_k[2])
+					ins_k_down = (ary[0], ary[3], last_k[1] + 1,last_k[2])
 					if (ins_k_down) not in ins_q:
 						ins[next_k] = ins.get(next_k,0) + 1
 						ins_q[ins_k_down].append(ord(ary[-5])-33)
